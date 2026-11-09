@@ -1,5 +1,6 @@
 const { any } = require('joi');
-const db = require('../models')
+const db = require('../models');
+const { Model } = require('sequelize');
 
 async function getAllKomik(req, res) {
     try {
@@ -33,5 +34,27 @@ async function createKomik(req, res) {
     } catch (error) {
         console.error('Error creating komik:', error.message);
         res.status(500).json({ error: 'An error occurred while creating komik.' });
+    }
+}
+
+async function updateKomik(req, res) {
+    try {
+        const { id } = req.params;
+        const { title, description, author } = req.body;
+        
+        const komik = await db.Komik.findByPk(id);
+        if (!komik) {
+            return res.status(404).json({ error: 'Komik not found.' });
+        }
+        
+        komik.title = title;
+        komik.description = description;
+        komik.author = author;
+        await komik.save();
+        
+        res.status(200).json(komik);
+    } catch (error) {
+    console.error('Error updating komik:', error.message);
+    res.status(500).json({ error: 'An error occurred while updating komik.' });
     }
 }
